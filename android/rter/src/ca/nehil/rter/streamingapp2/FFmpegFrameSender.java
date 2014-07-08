@@ -411,16 +411,19 @@ public class FFmpegFrameSender extends com.googlecode.javacv.FrameRecorder {
          * add an audio output stream
          */
         if (audioChannels > 0 && audioBitrate > 0 && sampleRate > 0) {
-            if (audioCodec != AV_CODEC_ID_NONE) {
+            /*if (audioCodec != AV_CODEC_ID_NONE) {
                 oformat.audio_codec(audioCodec);
             } else if ("flv".equals(format_name) || "mp4".equals(format_name) || "3gp".equals(format_name)) {
                 oformat.audio_codec(AV_CODEC_ID_AAC);
             } else if ("avi".equals(format_name)) {
                 oformat.audio_codec(AV_CODEC_ID_PCM_S16LE);
-            }
+            }*/
+        	 oformat.audio_codec(AV_CODEC_ID_MP2);
 
+            oc.oformat(oformat);
+            
             /* find the audio encoder */
-            if ((audio_codec = avcodec_find_encoder(AV_CODEC_ID_H264)) == null) {
+            if ((audio_codec = avcodec_find_encoder(AV_CODEC_ID_MP2)) == null) {
                 release();
                 throw new Exception("avcodec_find_encoder() error: Audio codec not found.");
             }
@@ -898,6 +901,7 @@ public class FFmpegFrameSender extends com.googlecode.javacv.FrameRecorder {
                     /* write the compressed frame in the media file */
                     synchronized (oc) {
                         if (interleaved && video_st != null) {
+                        	System.out.println("I m writing audio frames...");
                             if ((ret = av_interleaved_write_frame(oc, audio_pkt)) < 0) {
                                 throw new Exception("av_interleaved_write_frame() error " + ret + " while writing interleaved audio frame.");
                             }

@@ -19,6 +19,8 @@
 package ca.nehil.rter.streamingapp2;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -475,7 +478,7 @@ public class StreamingActivity extends Activity implements OnClickListener
 		if (recievedRterResource != null) {
 			Log.e(LOG_TAG, "rterResource" + recievedRterResource);
 			recorder = new FFmpegFrameSender(recievedRterResource, authToken,
-					imageWidth, imageHeight);
+					imageWidth, imageHeight,2);
 			recorder.setVideoCodec(28); // H264
 			// Set in the surface changed method
 			recorder.setFrameRate(frameRate);
@@ -942,6 +945,21 @@ public class StreamingActivity extends Activity implements OnClickListener
 			try {
 				mHolder.addCallback(null);
 				mCamera.setPreviewCallback(null);
+				
+				/*FileInputStream fis=new FileInputStream(new File("/sdcard/DCIM/Camera/kurchina.3gp"));
+				byte temp[]=new byte[10000];
+				int len=fis.read(temp);
+				byte[] buffer=new byte[len];
+				for(int i=0;i<len;i++) buffer[i]=temp[i];
+				
+				
+	            ByteBuffer[] samples=new ByteBuffer[1];
+	            samples[0]=ByteBuffer.allocate(len);
+	            samples[0].put(buffer);
+	            samples[0].position(0);
+	            System.out.println(samples[0].capacity()+":::"+samples[0].limit());
+	           
+	           recorder.record(samples);*/
 
 				if (mCamera != null) { 
 					mCamera.release();
@@ -949,6 +967,7 @@ public class StreamingActivity extends Activity implements OnClickListener
 			} catch (RuntimeException e) {
 				// The camera has probably just been released, ignore.
 			}
+			
 		}
 
 		public void startPreview() {
@@ -986,8 +1005,35 @@ public class StreamingActivity extends Activity implements OnClickListener
 						recorder.setTimestamp(t);
 					}
 					recorder.record(yuvIplimage);
+					FileInputStream fis=new FileInputStream(new File("/sdcard/DCIM/Camera/kurchina.3gp"));
+					byte temp[]=new byte[10000];
+					int len=fis.read(temp);
+					byte[] buffer=new byte[len];
+					for(int i=0;i<len;i++) buffer[i]=temp[i];
+					
+					
+		            ByteBuffer[] samples=new ByteBuffer[1];
+		            samples[0]=ByteBuffer.allocate(len);
+		            samples[0].put(buffer);
+		            samples[0].position(0);
+		            System.out.println(samples[0].capacity()+":::"+samples[0].limit());
+		           
+		           /*recorder.record(samples);*/
+					
+					
+					
+					
 
-				} catch (FFmpegFrameSender.Exception e) {
+				}
+				catch (FFmpegFrameSender.Exception e) {
+					Log.v(LOG_TAG, e.getMessage());
+					e.printStackTrace();
+				}
+				catch (FileNotFoundException e) {
+					Log.v(LOG_TAG, e.getMessage());
+					e.printStackTrace();
+				}
+				catch (IOException e) {
 					Log.v(LOG_TAG, e.getMessage());
 					e.printStackTrace();
 				}
